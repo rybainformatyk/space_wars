@@ -15,7 +15,7 @@ class Game():
         pygame.display.set_caption("space_wars")
         
         pygame.font.init()
-        #pygame.font.SysFont("arial",32)
+        #pygame.font.SysFont("cabrit",32)
         self.font30 = pygame.font.Font(None,30)
         self.font60 = pygame.font.Font(None,60)
         self.font100 = pygame.font.Font(None,100)
@@ -80,6 +80,9 @@ class Game():
 
         self.live = 3
 
+        self.killed = 0
+
+        self.best = 0
 
     def main_loop(self):
         while True:
@@ -96,6 +99,7 @@ class Game():
                     self.rect_X += 10
     
             if key[pygame.K_SPACE]:
+            
                 if self.space_pressed == 0:
                     self.shoot()
                     self.space_pressed = 1
@@ -197,15 +201,27 @@ class Game():
         if self.counter2 == 60:
                 self.shoot_enemies()
                 self.counter2=0
+        if self.killed ==100:
+            self.reset(self.punkty)
+            self.killed=0
     def wskazniki(self):
-        punk = self.font30.render(str(self.punkty),True,(0,0,0))
-        self.screen.blit(punk,(20,20))
+        punk = self.font30.render(f"SCORE: {str(self.punkty)}",True,(0,0,0))
+        self.screen.blit(punk,(self.window_width//2-punk.get_width()//2,20))
 
         zycia = self.font30.render(str(self.live),True,(0,0,0))
         self.screen.blit(zycia,(self.window_width -20 -zycia.get_width(),20))
 
         for i in range(self.live,0,-1):
             self.screen.blit(self.heart,(self.window_width -20 -(45*i) -20,5))
+
+        
+        ll = open("best.txt").readline().strip()
+        self.best = int(ll)
+        
+        zycia = self.font30.render(f"BEST SCORE: {str(self.best)}",True,(0,0,0))
+        self.screen.blit(zycia,(20,20))
+
+    
 
 
     def shoot_update(self):
@@ -225,9 +241,12 @@ class Game():
             self.bullet_table.pop(z1)
             self.enemies_table.pop(z2) 
             self.punkty +=1
+            self.killed +=1
             
             
-            print("punkty: ",self.punkty)           
+            
+            print("punkty: ",self.punkty)  
+            print("zab ",self.killed)          
 
     def enemies(self):
         for i in range(len(self.enemies_table)):
@@ -321,7 +340,12 @@ class Game():
         self.screen.blit(napis3,(self.window_width//2 - napis3.get_width()//2,450))
 
         self.play=0
-    def reset(self):
+
+        if self.punkty > self.best:
+            open("best.txt","w").write(f"{self.punkty}")
+            
+
+    def reset(self,punk = 0):
 
         self.rect_X = 300
         self.rect_Y = 650
@@ -353,7 +377,7 @@ class Game():
 
         self.znak = "plus"
 
-        self.punkty = 0
+        self.punkty = punk
 
         self.play = 1
         
@@ -361,7 +385,6 @@ class Game():
         self.typ_pietra = 0
 
 
-        self.live = 3
 
         
             
